@@ -65,7 +65,7 @@ class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.InputEncoding = System.Text.Encoding.UTF8;
 
-        Console.Title = "Steam Cleaner - by RazDays._";
+        Console.Title = "SteamCleaner";
 
         // 1. Selector Inicial de Idioma
         SeleccionarIdioma();
