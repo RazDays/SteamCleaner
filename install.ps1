@@ -32,16 +32,12 @@ if (-not $dotnetInstalled) {
 Write-Host "Descargando SteamCleaner..." -ForegroundColor Green
 Invoke-WebRequest -Uri $exeUrl -OutFile $tempPath
 
-# 4. Iniciar el programa en segundo plano y limpiar al finalizar
+# 4. Iniciar tu programa
 $process = Start-Process -FilePath $tempPath -PassThru
 
-# Crear una tarea en segundo plano que espere a que tu .exe se cierre para borrarlo
-$job = Start-Job -ScriptBlock {
-    param($procId, $file)
-    Wait-Process -Id $procId -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 1
-    Remove-Item -Path $file -Force -ErrorAction SilentlyContinue
-} -ArgumentList $process.Id, $tempPath
+# 5. Crear una orden independiente en CMD que espera a que finalice el ejecutable y lo borra
+$cmdCommand = "/c timeout /t 2 /nobreak >nul & :loop & tasklist /fi ""PID eq $($process.Id)"" | find ""$($process.Id)"" >nul && (timeout /t 1 /nobreak >nul & goto loop) || (del /f /q ""$tempPath"")"
+Start-Process -FilePath "cmd.exe" -ArgumentList $cmdCommand -WindowStyle Hidden
 
-# 5. Cerrar la ventana principal de PowerShell inmediatamente
-exit
+# 6. Cerrar la ventana de PowerShell de inmediato
+[System.Environment]::Exit(0)
