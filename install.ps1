@@ -32,9 +32,8 @@ if (-not $dotnetInstalled) {
 Write-Host "Descargando SteamCleaner..." -ForegroundColor Green
 Invoke-WebRequest -Uri $exeUrl -OutFile $tempPath
 
-# 4. Delegar ejecucion y auto-borrado a un CMD invisible
-$cmdCommand = "/c start /wait ""SteamCleaner"" ""$tempPath"" & :loop & del /f /q ""$tempPath"" 2>nul & if exist ""$tempPath"" (timeout /t 1 /nobreak >nul & goto loop)"
-Start-Process -FilePath "cmd.exe" -ArgumentList $cmdCommand -WindowStyle Hidden
+# 4. Iniciar tu programa
+Start-Process -FilePath $tempPath
 
-# 5. Cerrar la ventana de PowerShell inmediatamente
+# 5. Cerrar PowerShell inmediatamente
 [System.Environment]::Exit(0)
