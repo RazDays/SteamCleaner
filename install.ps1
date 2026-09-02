@@ -32,14 +32,9 @@ if (-not $dotnetInstalled) {
 Write-Host "Descargando SteamCleaner..." -ForegroundColor Green
 Invoke-WebRequest -Uri $exeUrl -OutFile $tempPath
 
-# 4. Iniciar tu programa y ESPERAR a que se cierre (sea como sea que lo cierren)
-$process = Start-Process -FilePath $tempPath -PassThru
-$process.WaitForExit()
+# 4. Delegar ejecucion y auto-borrado a un CMD invisible
+$cmdCommand = "/c start /wait ""SteamCleaner"" ""$tempPath"" & :loop & del /f /q ""$tempPath"" 2>nul & if exist ""$tempPath"" (timeout /t 1 /nobreak >nul & goto loop)"
+Start-Process -FilePath "cmd.exe" -ArgumentList $cmdCommand -WindowStyle Hidden
 
-# 5. Programar un borrado forzado en segundo plano (vía CMD)
-# Intenta borrar el archivo en bucle durante 5 segundos hasta que Windows libera el bloqueo del ejecutable
-$deleteCommand = "/c timeout /t 1 /nobreak >nul & :loop & del /f /q ""$tempPath"" 2>nul & if exist ""$tempPath"" (timeout /t 1 /nobreak >nul & goto loop)"
-Start-Process -FilePath "cmd.exe" -ArgumentList $deleteCommand -WindowStyle Hidden
-
-# 6. Cerrar PowerShell inmediatamente
+# 5. Cerrar la ventana de PowerShell inmediatamente
 [System.Environment]::Exit(0)
