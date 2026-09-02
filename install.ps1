@@ -32,6 +32,16 @@ if (-not $dotnetInstalled) {
 Write-Host "Descargando SteamCleaner..." -ForegroundColor Green
 Invoke-WebRequest -Uri $exeUrl -OutFile $tempPath
 
-# 4. Ejecutar la herramienta
-Write-Host "Iniciando SteamCleaner..." -ForegroundColor Green
-Start-Process -FilePath $tempPath -Wait
+# 4. Iniciar el programa en segundo plano y limpiar al finalizar
+$process = Start-Process -FilePath $tempPath -PassThru
+
+# Crear una tarea en segundo plano que espere a que tu .exe se cierre para borrarlo
+$job = Start-Job -ScriptBlock {
+    param($procId, $file)
+    Wait-Process -Id $procId -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+    Remove-Item -Path $file -Force -ErrorAction SilentlyContinue
+} -ArgumentList $process.Id, $tempPath
+
+# 5. Cerrar la ventana principal de PowerShell inmediatamente
+exit
