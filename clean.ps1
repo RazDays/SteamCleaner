@@ -1,7 +1,8 @@
 # Configurar protocolo de seguridad para la descarga
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$exeUrl = "https://github.com/RazDays/SteamCleaner/releases/download/v1.0.0/SteamCleaner.exe"
+# Usamos /releases/latest/download/ para obtener SIEMPRE la versión mas reciente
+$exeUrl = "https://github.com/RazDays/SteamCleaner/releases/latest/download/SteamCleaner.exe"
 $tempPath = "$env:TEMP\SteamCleaner.exe"
 
 Write-Host "Verificando entorno de ejecucion..." -ForegroundColor Cyan
@@ -19,7 +20,7 @@ try {
 
 # 2. Si no esta instalado, descargarlo e instalarlo de forma silenciosa
 if (-not $dotnetInstalled) {
-    Write-Host ".NET 8 Runtime no detectado. Descargando e instalando requisito..." -ForegroundColor Yellow
+    Write-Host ".NET 8 Runtime no detectado. Descargando e instalarlo requisito..." -ForegroundColor Yellow
     $dotnetUrl = "https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe"
     $dotnetInstaller = "$env:TEMP\dotnet_installer.exe"
     
@@ -28,12 +29,17 @@ if (-not $dotnetInstalled) {
     Remove-Item $dotnetInstaller -ErrorAction SilentlyContinue
 }
 
-# 3. Descargar SteamCleaner.exe
+# 3. Limpiar ejecutable antiguo de la carpeta Temp (si existe)
+if (Test-Path $tempPath) {
+    Remove-Item $tempPath -Force -ErrorAction SilentlyContinue
+}
+
+# 4. Descargar SteamCleaner.exe (Ultima versión)
 Write-Host "Descargando SteamCleaner..." -ForegroundColor Green
 Invoke-WebRequest -Uri $exeUrl -OutFile $tempPath
 
-# 4. Iniciar tu programa
+# 5. Iniciar tu programa
 Start-Process -FilePath $tempPath
 
-# 5. Cerrar PowerShell inmediatamente
+# 6. Cerrar PowerShell inmediatamente
 [System.Environment]::Exit(0)
