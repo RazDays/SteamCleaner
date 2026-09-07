@@ -7,7 +7,7 @@
   "targets": {
     ".NETCoreApp,Version=v8.0": {},
     ".NETCoreApp,Version=v8.0/win-x64": {
-      "Steam Cleaner/1.0.0": {
+      "Steam Cleaner/1.0.1": {
         "runtime": {
           "Steam Cleaner.dll": {}
         }
@@ -15,7 +15,7 @@
     }
   },
   "libraries": {
-    "Steam Cleaner/1.0.0": {
+    "Steam Cleaner/1.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

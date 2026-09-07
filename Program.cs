@@ -28,7 +28,6 @@ class Program
         CTRL_SHUTDOWN_EVENT = 6
     }
 
-    // Método que se ejecuta al presionar la 'X' o cerrar la ventana
     private static bool Handler(CtrlType sig)
     {
         switch (sig)
@@ -36,7 +35,6 @@ class Program
             case CtrlType.CTRL_CLOSE_EVENT:
             case CtrlType.CTRL_LOGOFF_EVENT:
             case CtrlType.CTRL_SHUTDOWN_EVENT:
-                // Forza la muerte inmediata del proceso actual sin dejar nada bloqueado
                 Process.GetCurrentProcess().Kill();
                 return true;
             default:
@@ -47,11 +45,9 @@ class Program
     [STAThread]
     static void Main()
     {
-        // Registrar el manejador del botón 'X'
         _handler += new EventHandler(Handler);
         SetConsoleCtrlHandler(_handler, true);
 
-        // Evento adicional de salida de proceso para asegurar limpieza total
         AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
         {
             try
@@ -61,7 +57,6 @@ class Program
             catch { }
         };
 
-        // Configurar la consola para interpretar y mostrar caracteres Unicode/UTF-8
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.InputEncoding = System.Text.Encoding.UTF8;
 
@@ -129,7 +124,6 @@ class Program
                 }
                 else if (opRuta == "3")
                 {
-                    // SECCIÓN INDEPENDIENTE PARA LA OPCIÓN 3 (MANUAL / ARRASTRAR)
                     bool canceladoManual = false;
 
                     while (true)
@@ -239,46 +233,53 @@ class Program
                     " [1] Limpeza Normal",
                     " [1] Limpieza Normal"
                 ));
-                
+
                 Console.WriteLine(GetText(
-                    " [2] Full Cleanup (Deep Clean)",
-                    " [2] Limpeza Profunda (Full Clean)",
-                    " [2] Limpieza Profunda (Full Clean)"
+                    " [2] Normal Cleanup + CloudRedirect",
+                    " [2] Limpeza Normal + CloudRedirect",
+                    " [2] Limpieza Normal + CloudRedirect"
                 ));
 
-                // AVISO DESTACADO PARA USUARIOS DE LUATOOLS (BORDES Y SÍMBOLOS ASCII CORREGIDOS)
+                Console.WriteLine(GetText(
+                    " [3] Deep Clean (Full Clean)",
+                    " [3] Limpeza Profunda (Full Clean)",
+                    " [3] Limpieza Profunda (Full Clean)"
+                ));
+
+                // AVISO DESTACADO PARA USUARIOS DE LUATOOLS
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("\n +------------------------------------------------------------------+");
                 Console.WriteLine(GetText(
-                    " |                    [!] NOTICE FOR LUATOOLS [!]                   |",
-                    " |               [!] AVISO PARA USUARIOS DO LUATOOLS [!]            |",
-                    " |               [!] AVISO PARA USUARIOS DE LUATOOLS [!]            |"
+                    " |                  [!] NOTICE FOR LUATOOLS [!]                     |",
+                    " |            [!] AVISO PARA USUÁRIOS DO LUATOOLS [!]               |",
+                    " |           [!] AVISO PARA USUARIOS DE LUATOOLS [!]                |"
                 ));
                 Console.WriteLine(GetText(
-                    " | If you use tools like LuaTools and want to clear AppData residue,|",
-                    " | Se voce usa ferramentas como LuaTools e quer limpar o AppData,   |",
-                    " | Si usas herramientas como LuaTools y deseas limpiar AppData,     |"
+                    " | If you use LuaTools and want to purge all leftover files/cache,  |",
+                    " | Se você usa LuaTools e quer limpar todos os arquivos/cache,      |",
+                    " | Si usas LuaTools y deseas purgar todos los archivos/caché,       |"
                 ));
                 Console.WriteLine(GetText(
-                    " | please select Option 3 below.                                    |",
-                    " | por favor selecione a Opcao 3 abaixo.                            |",
-                    " | por favor selecciona la Opcion 3 a continuacion.                 |"
+                    " | please select Option 4 below.                                    |",
+                    " | por favor selecione a Opção 4 abaixo.                            |",
+                    " | por favor selecciona la Opción 4 a continuación.                 |"
                 ));
                 Console.WriteLine(" +------------------------------------------------------------------+\n");
                 Console.ResetColor();
 
                 Console.WriteLine(GetText(
-                    " [3] Full Purge (+ LuaTools)",
-                    " [3] Purga Completa (+ LuaTools)",
-                    " [3] Purga Completa (+ LuaTools)"
+                    " [4] Full Purge (+ LuaTools & CloudRedirect)",
+                    " [4] Purga Completa (+ LuaTools & CloudRedirect)",
+                    " [4] Purga Completa (+ LuaTools & CloudRedirect)"
                 ));
 
-                Console.Write("\n" + GetText("Choose an option (1-3): ", "Escolha uma opção (1-3): ", "Elija una opción (1-3): "));
+                Console.Write("\n" + GetText("Choose an option (1-4): ", "Escolha uma opção (1-4): ", "Elija una opción (1-4): "));
                 string? modoOp = Console.ReadLine()?.Trim();
 
                 if (modoOp == "1") modoSeleccionado = 1;
                 else if (modoOp == "2") modoSeleccionado = 2;
                 else if (modoOp == "3") modoSeleccionado = 3;
+                else if (modoOp == "4") modoSeleccionado = 4;
                 else continue;
 
                 // PANTALLA DETALLADA DE VISTA PREVIA Y CONFIRMACIÓN
@@ -306,18 +307,20 @@ class Program
 
             string[] keepList;
 
+            // MODO 1: Mantiene los archivos/carpetas principales + CloudRedirect intacto
             if (modoSeleccionado == 1)
             {
                 keepList = new string[] { 
                     "appcache", "config", "steam", "steamapps", "userdata", 
-                    "steam.exe", "opensteamtool.toml", "cloud_redirect.dll" 
+                    "steam.exe", "opensteamtool.toml", "cloud_redirect.dll", "cloud_redirect.log", "cloud_redirect" 
                 };
             }
+            // MODO 2, 3 y 4: No conservan CloudRedirect en la carpeta de Steam
             else
             {
-                keepList = new string[] { 
-                    "steam", "steamapps", "userdata", "steam.exe" 
-                };
+                keepList = (modoSeleccionado == 2) 
+                    ? new string[] { "appcache", "config", "steam", "steamapps", "userdata", "steam.exe", "opensteamtool.toml" }
+                    : new string[] { "steam", "steamapps", "userdata", "steam.exe" };
             }
 
             Console.WriteLine("\n[2/4] " + GetText("Deleting files from Steam directory...", "Deletando arquivos da pasta do Steam...", "Eliminando archivos de la carpeta de Steam..."));
@@ -343,7 +346,15 @@ class Program
                 }
             }
 
-            if (modoSeleccionado == 2 || modoSeleccionado == 3)
+            // SI ES MODO 2, 3 O 4: Purgar CloudRedirect externo (AppData y Temp)
+            if (modoSeleccionado >= 2)
+            {
+                Console.WriteLine("\n  -> " + GetText("Purging CloudRedirect components...", "Purgando componentes do CloudRedirect...", "Purgando componentes de CloudRedirect..."));
+                EliminarCarpetaAppData("AppData", "CloudRedirect");
+                EliminarResiduosTempCloud();
+            }
+
+            if (modoSeleccionado == 3 || modoSeleccionado == 4)
             {
                 Console.WriteLine("\n[3/4] " + GetText("Performing Deep Full Cleanup (AppData & Registry)...", "Executando limpeza profunda (AppData e Registro)...", "Ejecutando limpieza profunda (AppData y Registro)..."));
                 
@@ -351,15 +362,13 @@ class Program
                 EliminarCarpetaAppData("AppData", "Steam");
                 EliminarRegistroSteam();
 
-                if (modoSeleccionado == 3)
+                if (modoSeleccionado == 4)
                 {
                     Console.WriteLine("\n  -> " + GetText("Purging LuaTools components...", "Purgando componentes do LuaTools...", "Purgando componentes de LuaTools..."));
                     
-                    // Borrado en Roaming (AppData)
                     EliminarCarpetaAppData("AppData", "LuaTools");
                     EliminarCarpetaAppData("AppData", "LuaToolsGui");
 
-                    // AGREGADO: Borrado en Local (AppData\Local)
                     EliminarCarpetaAppData("LOCALAPPDATA", "LuaTools");
                     EliminarCarpetaAppData("LOCALAPPDATA", "LuaToolsGui");
                 }
@@ -403,7 +412,6 @@ class Program
 
             AutoCloseTimer(5);
             
-            // Cierre forzado y limpio al finalizar el programa
             Process.GetCurrentProcess().Kill();
             break;
         }
@@ -419,9 +427,9 @@ class Program
             Console.WriteLine("==========================================================================");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(GetText(
-                " [+] KEEPS: appcache, config, steam (folder), steamapps, userdata, steam.exe, opensteamtool.toml, cloud_redirect.dll",
-                " [+] CONSERVA: appcache, config, steam (pasta), steamapps, userdata, steam.exe, opensteamtool.toml, cloud_redirect.dll",
-                " [+] CONSERVA: appcache, config, steam (carpeta), steamapps, userdata, steam.exe, opensteamtool.toml, cloud_redirect.dll"
+                " [+] KEEPS: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, cloud_redirect files/folders",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, arquivos/pastas de cloud_redirect",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, archivos/carpetas de cloud_redirect"
             ));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(GetText(
@@ -431,15 +439,39 @@ class Program
             ));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(GetText(
-                " [*] NOTE: Safe light cleanup. Keeps your logged account, settings, and game files untouched.",
-                " [*] NOTA: Limpeza leve e segura. Mantém sua conta conectada, configurações e jogos intactos.",
-                " [*] NOTA: Limpieza ligera y segura. Mantiene tu cuenta iniciada, configuraciones y juegos intactos."
+                " [*] NOTE: Safe light cleanup. Keeps your logged account, settings, and CloudRedirect intact.",
+                " [*] NOTA: Limpeza leve e segura. Mantém sua conta conectada, configurações e CloudRedirect intacto.",
+                " [*] NOTA: Limpieza ligera y segura. Mantiene tu cuenta iniciada, configuraciones y CloudRedirect intacto."
             ));
         }
         else if (modo == 2)
         {
             Console.WriteLine("==========================================================================");
-            Console.WriteLine(GetText("MODE 2: DEEP FULL CLEANUP DETAILS", "MODO 2: DETALHES DA LIMPEZA PROFUNDA", "MODO 2: DETALLES DE LIMPIEZA PROFUNDA"));
+            Console.WriteLine(GetText("MODE 2: NORMAL CLEANUP + CLOUDREDIRECT DETAILS", "MODO 2: DETALHES DA LIMPEZA NORMAL + CLOUDREDIRECT", "MODO 2: DETALLES DE LIMPIEZA NORMAL + CLOUDREDIRECT"));
+            Console.WriteLine("==========================================================================");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(GetText(
+                " [+] KEEPS: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml"
+            ));
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(GetText(
+                " [-] DELETES: Steam temp logs AND CloudRedirect (.dll, .log, folder in Steam, AppData & Temp).",
+                " [-] DELETA: Logs temporários do Steam E CloudRedirect (.dll, .log, pasta no Steam, AppData e Temp).",
+                " [-] ELIMINA: Logs temporales de Steam Y CloudRedirect (.dll, .log, carpeta en Steam, AppData y Temp)."
+            ));
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(GetText(
+                " [*] NOTE: Standard cleanup while completely wiping CloudRedirect residue.",
+                " [*] NOTA: Limpeza padrão enquanto remove completamente resíduos do CloudRedirect.",
+                " [*] NOTA: Limpieza estándar mientras remueve completamente los residuos de CloudRedirect."
+            ));
+        }
+        else if (modo == 3)
+        {
+            Console.WriteLine("==========================================================================");
+            Console.WriteLine(GetText("MODE 3: DEEP CLEAN (+ CLOUDREDIRECT) DETAILS", "MODO 3: DETALHES DA LIMPEZA PROFUNDA (+ CLOUDREDIRECT)", "MODO 3: DETALLES DE LIMPIEZA PROFUNDA (+ CLOUDREDIRECT)"));
             Console.WriteLine("==========================================================================");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(GetText(
@@ -449,9 +481,9 @@ class Program
             ));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(GetText(
-                " [-] DELETES: Everything in Steam folder + AppData cache + HKCU Registry keys.",
-                " [-] DELETA: Tudo na pasta do Steam + cache do AppData + chaves do Registro HKCU.",
-                " [-] ELIMINA: Todo en la carpeta Steam + caché de AppData + claves del Registro HKCU."
+                " [-] DELETES: Everything in Steam folder + AppData cache + HKCU Registry AND CloudRedirect.",
+                " [-] DELETA: Tudo na pasta do Steam + cache do AppData + Registro HKCU E CloudRedirect.",
+                " [-] ELIMINA: Todo en la carpeta Steam + caché de AppData + Registro HKCU Y CloudRedirect."
             ));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(GetText(
@@ -460,10 +492,10 @@ class Program
                 " [*] NOTA: Reset profundo. Se requerirá iniciar sesión de nuevo, pero tus juegos y saves ESTÁN A SALVO."
             ));
         }
-        else if (modo == 3)
+        else if (modo == 4)
         {
             Console.WriteLine("==========================================================================");
-            Console.WriteLine(GetText("MODE 3: FULL PURGE (+ LUATOOLS) DETAILS", "MODO 3: DETALHES DA PURGA COMPLETA (+ LUATOOLS)", "MODO 3: DETALLES DE PURGA COMPLETA (+ LUATOOLS)"));
+            Console.WriteLine(GetText("MODE 4: FULL PURGE (+ LUATOOLS & CLOUDREDIRECT) DETAILS", "MODO 4: DETALHES DA PURGA COMPLETA (+ LUATOOLS & CLOUDREDIRECT)", "MODO 4: DETALLES DE PURGA COMPLETA (+ LUATOOLS & CLOUDREDIRECT)"));
             Console.WriteLine("==========================================================================");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(GetText(
@@ -473,15 +505,15 @@ class Program
             ));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(GetText(
-                " [-] DELETES: Steam folder + AppData + Registry AND LuaTools / LuaToolsGui AppData folders.",
-                " [-] DELETA: Pasta do Steam + AppData + Registro E pastas LuaTools / LuaToolsGui no AppData.",
-                " [-] ELIMINA: Carpeta de Steam + AppData + Registro Y las carpetas de LuaTools / LuaToolsGui en AppData."
+                " [-] DELETES: Steam + AppData + Registry AND ALL LuaTools & CloudRedirect files, folders, & Temp residue.",
+                " [-] DELETA: Steam + AppData + Registro E TODOS os arquivos/pastas de LuaTools & CloudRedirect (incluindo Temp).",
+                " [-] ELIMINA: Steam + AppData + Registro Y TODOS los archivos/carpetas de LuaTools & CloudRedirect (incluyendo Temp)."
             ));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(GetText(
-                " [*] NOTE: Complete purge. Forces a clean reinstall for both Steam and LuaTools.",
-                " [*] NOTA: Purga completa. Força uma reinstalação limpa do Steam e do LuaTools.",
-                " [*] NOTA: Purga completa. Fuerza una reinstalación limpia tanto de Steam como de LuaTools."
+                " [*] NOTE: Total wipe out. Forces a clean reinstall for Steam, LuaTools, and CloudRedirect.",
+                " [*] NOTA: Purga total. Força uma reinstalação limpa do Steam, LuaTools e CloudRedirect.",
+                " [*] NOTA: Purga total. Fuerza una reinstalación limpia de Steam, LuaTools y CloudRedirect."
             ));
         }
         Console.ResetColor();
@@ -584,8 +616,7 @@ class Program
 
     static void CerrarSteamYProcesosRelacionados(string steamPath)
     {
-        // AGREGADO: Processos directos de LuaTools agregados para asegurar liberación de archivos
-        string[] directProcesses = { "steam", "steamservice", "steamwebhelper", "luatools", "luatoolsgui" };
+        string[] directProcesses = { "steam", "steamservice", "steamwebhelper", "luatools", "luatoolsgui", "cloudredirect" };
         foreach (string procName in directProcesses)
         {
             foreach (var process in Process.GetProcessesByName(procName))
@@ -631,6 +662,39 @@ class Program
         catch (Exception ex)
         {
             Console.WriteLine($"  ! AppData warning: {ex.Message}");
+        }
+    }
+
+    static void EliminarResiduosTempCloud()
+    {
+        try
+        {
+            string tempPath = Path.GetTempPath();
+            DirectoryInfo tempDir = new DirectoryInfo(tempPath);
+
+            foreach (var subDir in tempDir.GetDirectories("*cloud*", SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    subDir.Delete(true);
+                    Console.WriteLine($"  - Temp Folder Deleted: {subDir.FullName}");
+                }
+                catch { }
+            }
+
+            foreach (var file in tempDir.GetFiles("*cloud*", SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    file.Delete();
+                    Console.WriteLine($"  - Temp File Deleted: {file.FullName}");
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"  ! Temp purge warning: {ex.Message}");
         }
     }
 

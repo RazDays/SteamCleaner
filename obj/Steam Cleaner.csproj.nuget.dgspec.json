@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\ElRa\\Desktop\\Steam Cleaner\\Steam Cleaner.csproj": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "restore": {
         "projectUniqueName": "C:\\Users\\ElRa\\Desktop\\Steam Cleaner\\Steam Cleaner.csproj",
         "projectName": "Steam Cleaner",
@@ -71,10 +71,6 @@
             },
             {
               "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
               "version": "[8.0.28, 8.0.28]"
             },
             {
