@@ -1,0 +1,2 @@
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\publish\Steam Cleaner.pdb
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\publish\Steam Cleaner.exe

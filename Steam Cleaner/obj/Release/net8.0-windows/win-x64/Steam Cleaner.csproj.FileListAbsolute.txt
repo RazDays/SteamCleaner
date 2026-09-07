@@ -1,0 +1,14 @@
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\Steam Cleaner.exe
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\Steam Cleaner.deps.json
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\Steam Cleaner.runtimeconfig.json
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\Steam Cleaner.dll
+C:\Users\ElRa\Desktop\Steam Cleaner\bin\Release\net8.0-windows\win-x64\Steam Cleaner.pdb
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.AssemblyInfoInputs.cache
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.AssemblyInfo.cs
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.csproj.CoreCompileInputs.cache
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.dll
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\refint\Steam Cleaner.dll
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.pdb
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\Steam Cleaner.genruntimeconfig.cache
+C:\Users\ElRa\Desktop\Steam Cleaner\obj\Release\net8.0-windows\win-x64\ref\Steam Cleaner.dll
