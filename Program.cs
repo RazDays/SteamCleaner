@@ -62,6 +62,16 @@ class Program
 
         Console.Title = "SteamCleaner";
 
+        // Ajuste de ancho de la ventana para evitar cortes de texto
+        try
+        {
+            int targetWidth = Math.Min(105, Console.LargestWindowWidth);
+            int targetHeight = Math.Min(32, Console.LargestWindowHeight);
+            Console.SetWindowSize(targetWidth, targetHeight);
+            Console.SetBufferSize(targetWidth, targetHeight);
+        }
+        catch { }
+
         // 1. Selector Inicial de Idioma
         SeleccionarIdioma();
 
@@ -227,7 +237,7 @@ class Program
 
                 Console.WriteLine("==========================================================================");
                 Console.WriteLine(GetText("SELECT CLEANUP MODE:", "SELECIONE O MODO DE LIMPEZA:", "SELECCIONE EL MODO DE LIMPIEZA:"));
-                
+
                 Console.WriteLine(GetText(
                     " [1] Normal Cleanup",
                     " [1] Limpeza Normal",
@@ -307,20 +317,26 @@ class Program
 
             string[] keepList;
 
-            // MODO 1: Mantiene los archivos/carpetas principales + CloudRedirect intacto
+            // MODO 1: Mantiene los archivos/carpetas principales (incluye depotcache) + CloudRedirect intacto
             if (modoSeleccionado == 1)
             {
                 keepList = new string[] { 
-                    "appcache", "config", "steam", "steamapps", "userdata", 
+                    "appcache", "config", "steam", "steamapps", "userdata", "depotcache",
                     "steam.exe", "opensteamtool.toml", "cloud_redirect.dll", "cloud_redirect.log", "cloud_redirect" 
                 };
             }
-            // MODO 2, 3 y 4: No conservan CloudRedirect en la carpeta de Steam
+            // MODO 2: Mantiene los archivos/carpetas principales (incluye depotcache) pero elimina CloudRedirect
+            else if (modoSeleccionado == 2)
+            {
+                keepList = new string[] { 
+                    "appcache", "config", "steam", "steamapps", "userdata", "depotcache",
+                    "steam.exe", "opensteamtool.toml" 
+                };
+            }
+            // MODOS 3 y 4: Limpieza profunda / Purga (BORRAN depotcache)
             else
             {
-                keepList = (modoSeleccionado == 2) 
-                    ? new string[] { "appcache", "config", "steam", "steamapps", "userdata", "steam.exe", "opensteamtool.toml" }
-                    : new string[] { "steam", "steamapps", "userdata", "steam.exe" };
+                keepList = new string[] { "steam", "steamapps", "userdata", "steam.exe" };
             }
 
             Console.WriteLine("\n[2/4] " + GetText("Deleting files from Steam directory...", "Deletando arquivos da pasta do Steam...", "Eliminando archivos de la carpeta de Steam..."));
@@ -357,7 +373,7 @@ class Program
             if (modoSeleccionado == 3 || modoSeleccionado == 4)
             {
                 Console.WriteLine("\n[3/4] " + GetText("Performing Deep Full Cleanup (AppData & Registry)...", "Executando limpeza profunda (AppData e Registro)...", "Ejecutando limpieza profunda (AppData y Registro)..."));
-                
+
                 EliminarCarpetaAppData("LocalAppData", "Steam");
                 EliminarCarpetaAppData("AppData", "Steam");
                 EliminarRegistroSteam();
@@ -365,7 +381,7 @@ class Program
                 if (modoSeleccionado == 4)
                 {
                     Console.WriteLine("\n  -> " + GetText("Purging LuaTools components...", "Purgando componentes do LuaTools...", "Purgando componentes de LuaTools..."));
-                    
+
                     EliminarCarpetaAppData("AppData", "LuaTools");
                     EliminarCarpetaAppData("AppData", "LuaToolsGui");
 
@@ -411,7 +427,7 @@ class Program
             }
 
             AutoCloseTimer(5);
-            
+
             Process.GetCurrentProcess().Kill();
             break;
         }
@@ -427,9 +443,9 @@ class Program
             Console.WriteLine("==========================================================================");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(GetText(
-                " [+] KEEPS: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, cloud_redirect files/folders",
-                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, arquivos/pastas de cloud_redirect",
-                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml, archivos/carpetas de cloud_redirect"
+                " [+] KEEPS: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml, cloud_redirect files/folders",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml, arquivos/pastas de cloud_redirect",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml, archivos/carpetas de cloud_redirect"
             ));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(GetText(
@@ -451,9 +467,9 @@ class Program
             Console.WriteLine("==========================================================================");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(GetText(
-                " [+] KEEPS: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml",
-                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml",
-                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, steam.exe, opensteamtool.toml"
+                " [+] KEEPS: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml",
+                " [+] CONSERVA: appcache, config, steam, steamapps, userdata, depotcache,\n     steam.exe, opensteamtool.toml"
             ));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(GetText(
@@ -524,7 +540,7 @@ class Program
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("=================================================");
-        Console.WriteLine("          SELECT LANGUAGE / IDIOMA               ");
+        Console.WriteLine("           SELECT LANGUAGE / IDIOMA              ");
         Console.WriteLine("=================================================");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine(" [1] English");
@@ -533,7 +549,7 @@ class Program
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("=================================================");
         Console.ResetColor();
-        
+
         Console.Write("\nChoose an option / Elija una opción (1-3) [Default 1]: ");
         string? input = Console.ReadLine()?.Trim();
 
@@ -555,7 +571,7 @@ class Program
 
         string[] asciiLines = new string[]
         {
-            @"  _____ __                          __________                               ",
+            @"  _____ __                          __________                           ",
             @" / ___// /____  ____ _____ ___ / /   / ____/ /__  ____ _____  ___  _____     ",
             @" \__ \/ __/ _ \/ __ `/ __ `__ \/ /  / /   / / _ \/ __ `/ __ \/ _ \/ ___/     ",
             @"___/ / /_/  __/ /_/ / / / / / / /  / /___/ /  __/ /_/ / / / /  __/ /         ",
@@ -670,75 +686,42 @@ class Program
         try
         {
             string tempPath = Path.GetTempPath();
-            DirectoryInfo tempDir = new DirectoryInfo(tempPath);
-
-            foreach (var subDir in tempDir.GetDirectories("*cloud*", SearchOption.TopDirectoryOnly))
+            string[] tempDirs = Directory.GetDirectories(tempPath, "*cloudredirect*", SearchOption.TopDirectoryOnly);
+            foreach (var dir in tempDirs)
             {
-                try
-                {
-                    subDir.Delete(true);
-                    Console.WriteLine($"  - Temp Folder Deleted: {subDir.FullName}");
-                }
-                catch { }
-            }
-
-            foreach (var file in tempDir.GetFiles("*cloud*", SearchOption.TopDirectoryOnly))
-            {
-                try
-                {
-                    file.Delete();
-                    Console.WriteLine($"  - Temp File Deleted: {file.FullName}");
-                }
-                catch { }
+                try { Directory.Delete(dir, true); } catch { }
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"  ! Temp purge warning: {ex.Message}");
-        }
+        catch { }
     }
 
     static void EliminarRegistroSteam()
     {
         try
         {
-            Registry.CurrentUser.DeleteSubKeyTree(@"Software\Valve\Steam", false);
-            Console.WriteLine("  - Registry keys purged: HKCU\\Software\\Valve\\Steam");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"  ! Registry purge warning: {ex.Message}");
-        }
-    }
-
-    static void AutoCloseTimer(int segundos)
-    {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine();
-
-        for (int i = segundos; i > 0; i--)
-        {
-            Console.Write($"\r" + GetText(
-                $"Press any key to close immediately or wait {i} seconds...",
-                $"Pressione qualquer tecla para fechar ou aguarde {i} segundos...",
-                $"Presione cualquier tecla para cerrar o espere {i} segundos..."
-            ) + "   ");
-
-            for (int ms = 0; ms < 10; ms++)
+            using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(@"Software\Valve", true))
             {
-                if (Console.KeyAvailable)
+                if (key != null)
                 {
-                    Console.ReadKey(true);
-                    return;
+                    key.DeleteSubKeyTree("Steam", false);
+                    Console.WriteLine("  - Registry Key HKCU\\Software\\Valve\\Steam Deleted.");
                 }
-                Thread.Sleep(100);
             }
         }
-        Console.ResetColor();
+        catch { }
     }
 
     static void PausarBreve()
     {
         Thread.Sleep(1500);
+    }
+
+    static void AutoCloseTimer(int segundos)
+    {
+        for (int i = segundos; i > 0; i--)
+        {
+            Console.Write($"\r" + GetText($"Closing in {i} seconds...", $"Fechando em {i} segundos...", $"Cerrando en {i} segundos..."));
+            Thread.Sleep(1000);
+        }
     }
 }
